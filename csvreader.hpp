@@ -24,6 +24,9 @@
  *  THE SOFTWARE.
  *
  */
+
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <list>
