@@ -45,6 +45,14 @@ class ICSVReader {
     typedef DataT data_type;
     typedef typename std::list< data_type >::iterator iterator;
     typedef typename std::list< data_type >::const_iterator const_iterator;
+
+private:
+
+    /*!
+     *
+     */
+    virtual data_type parse_row( std::list< std::basic_string< char_type > >&& row ) = 0;
+
 public:
 
     ICSVReader()
@@ -104,11 +112,6 @@ public:
 
 
 private:
-
-    /*!
-     *
-     */
-    virtual data_type parse_row( std::list< std::basic_string< char_type > >&& row ) = 0;
 
     auto read_row( std::basic_istream< char_type >& in, char_type delimiter ) -> std::list< std::basic_string< char_type > >
     {
