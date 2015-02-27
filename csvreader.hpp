@@ -174,7 +174,7 @@ class CSVReaderStringList : public ICSVReaderChar< CharT > {
     typedef string_list< CharT > string_list_;
 
 public:
-    using ICSVReader< std::list< std::basic_string< CharT > >, CharT >::ICSVReader;
+    using ICSVReader< string_list_, CharT >::ICSVReader;
 
 protected:
     virtual auto parse_row ( string_list_ row ) -> string_list_ override
