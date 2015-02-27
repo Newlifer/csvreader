@@ -39,7 +39,7 @@
  *
  *
  */
-template< typename DataT, typename CharT >
+template < typename DataT, typename CharT >
 class ICSVReader {
     typedef CharT char_type;
     typedef DataT data_type;
@@ -47,103 +47,95 @@ class ICSVReader {
     typedef typename std::list< data_type >::const_iterator const_iterator;
 
 private:
-
     /*!
      *
      */
-    virtual data_type parse_row( std::list< std::basic_string< char_type > >&& row ) = 0;
+    virtual data_type parse_row ( std::list< std::basic_string< char_type > > row ) = 0;
 
 public:
-
-    ICSVReader()
-        : delimiter_( ',' )
-        , row_delimiter_( '\n' )
+    ICSVReader () : delimiter_ ( ',' ), row_delimiter_ ( '\n' )
     {
         // empty
     }
 
-     /*!
-     * Constructor.
-     *
-     * @param[in] strm, Input stream.
-     * @param[in] delimiter, Columns delimiter letter.
-     * @param[in] row_delimiter, Rows endings.
-     */
-    ICSVReader( std::basic_istream< char_type >* strm, char_type delimiter, char_type row_delimiter )
-        : delimiter_( delimiter )
-        , row_delimiter_( row_delimiter )
+    /*!
+    * Constructor.
+    *
+    * @param[in] strm, Input stream.
+    * @param[in] delimiter, Columns delimiter letter.
+    * @param[in] row_delimiter, Rows endings.
+    */
+    ICSVReader ( std::basic_istream< char_type >* strm, char_type delimiter, char_type row_delimiter )
+        : delimiter_ ( delimiter ), row_delimiter_ ( row_delimiter )
     {
         stream_ = strm;
     }
 
-    void parse( )
+    void parse ()
     {
-        while( stream_->good() ) {
+        while ( stream_->good () ) {
             std::basic_string< char_type > s;
-            std::getline( *stream_, s, row_delimiter_ );
-            data_.push_front( read_row( s, delimiter_ ) );
+            std::getline ( *stream_, s, row_delimiter_ );
+            data_.push_front ( read_row ( s, delimiter_ ) );
         }
     }
 
-    iterator begin()
+    iterator begin ()
     {
-        return data_.begin();
+        return data_.begin ();
     }
 
-    const_iterator begin() const
+    const_iterator begin () const
     {
-        return data_.begin();
+        return data_.begin ();
     }
 
-    iterator end()
+    iterator end ()
     {
-        return data_.end();
+        return data_.end ();
     }
 
-    const_iterator end() const
+    const_iterator end () const
     {
-        return data_.end();
+        return data_.end ();
     }
 
-    std::size_t size() const
+    std::size_t size () const
     {
-        return data_.size();
+        return data_.size ();
     }
 
 
 private:
-
-    auto read_row( std::basic_istream< char_type >& in, char_type delimiter ) -> std::list< std::basic_string< char_type > >
+    auto read_row ( std::basic_istream< char_type >& in, char_type delimiter )
+        -> std::list< std::basic_string< char_type > >
     {
         std::basic_stringstream< char_type > ss;
         bool inquotes = false;
         std::list< std::basic_string< char_type > > row;
-        while( in.good() ) {
-            char_type c = in.get();
-            if( !inquotes && c == '"' ) {
+        while ( in.good () ) {
+            char_type c = in.get ();
+            if ( !inquotes && c == '"' ) {
                 inquotes = true;
             }
-            else
-            if( inquotes && c == '"' ) { // quotes
-                if( in.peek() == '"' ) {
-                    ss << ( char_type )in.get();
+            else if ( inquotes && c == '"' ) { // quotes
+                if ( in.peek () == '"' ) {
+                    ss << (char_type)in.get ();
                 }
                 else {
                     inquotes = false;
                 }
             }
-            else
-            if( !inquotes && c == delimiter ) {
-                row.push_back( ss.str() );
+            else if ( !inquotes && c == delimiter ) {
+                row.push_back ( ss.str () );
                 static const std::basic_string< char_type > a;
-                ss.str( a );
+                ss.str ( a );
             }
-            else
-            if( !inquotes && ( c == '\r' ) ) {
-                if( in.peek() == '\n' ) {
-                      in.get();
+            else if ( !inquotes && ( c == '\r' ) ) {
+                if ( in.peek () == '\n' ) {
+                    in.get ();
                 }
-                row.push_back( ss.str() );
+                row.push_back ( ss.str () );
                 return row;
             }
             else {
@@ -152,10 +144,10 @@ private:
         }
     }
 
-    auto read_row( std::basic_string< char_type > &line, char_type delimiter ) -> data_type
+    auto read_row ( std::basic_string< char_type >& line, char_type delimiter ) -> data_type
     {
-        std::basic_stringstream< char_type > ss( line );
-        return parse_row( std::move( read_row( ss, delimiter ) ) );
+        std::basic_stringstream< char_type > ss ( line );
+        return parse_row ( std::move ( read_row ( ss, delimiter ) ) );
     }
 
 
@@ -166,22 +158,19 @@ private:
     std::basic_istream< char_type >* stream_;
 
 private:
-    ICSVReader( const ICSVReader& ) = delete;
-    ICSVReader& operator= ( const ICSVReader& ) = delete;
-
+    ICSVReader ( const ICSVReader& ) = delete;
+    ICSVReader& operator=( const ICSVReader& ) = delete;
 };
 
-template< typename CharT >
+template < typename CharT >
 class CSVReaderA : public ICSVReader< std::list< std::basic_string< CharT > >, CharT > {
 public:
-
     using ICSVReader< std::list< std::basic_string< CharT > >, CharT >::ICSVReader;
 
-    virtual std::list< std::basic_string< CharT > > parse_row( std::list< std::basic_string< CharT > >&& row ) override
+    virtual std::list< std::basic_string< CharT > > parse_row ( std::list< std::basic_string< CharT > > row ) override
     {
         return row;
     }
-
 };
 
 
@@ -190,16 +179,16 @@ public:
  *
  * @tparam T, Char type.
  */
-template< typename T >
+template < typename T >
 class CSVReader {
     typedef T char_type;
     typedef typename std::list< std::list< std::basic_string< char_type > > >::iterator iterator;
     typedef typename std::list< std::list< std::basic_string< char_type > > >::const_iterator const_iterator;
+
 public:
-    CSVReader()
-        : delimiter_( ',' )
-        , row_delimiter_( '\n' )
-    {}
+    CSVReader () : delimiter_ ( ',' ), row_delimiter_ ( '\n' )
+    {
+    }
 
     /*!
      * Constructor.
@@ -208,81 +197,77 @@ public:
      * @param[in] delimiter, Columns delimiter letter.
      * @param[in] row_delimiter, Rows endings.
      */
-    CSVReader( std::basic_istream< char_type >* strm, char_type delimiter, char_type row_delimiter )
-        : delimiter_( delimiter )
-        , row_delimiter_( row_delimiter )
+    CSVReader ( std::basic_istream< char_type >* strm, char_type delimiter, char_type row_delimiter )
+        : delimiter_ ( delimiter ), row_delimiter_ ( row_delimiter )
     {
         stream_ = strm;
     }
 
-    void parse()
+    void parse ()
     {
-        while( stream_->good() ) {
+        while ( stream_->good () ) {
             std::basic_string< char_type > s;
-            std::getline( *stream_, s, row_delimiter_ );
-            data_.push_front( read_row( s, delimiter_ ) );
+            std::getline ( *stream_, s, row_delimiter_ );
+            data_.push_front ( read_row ( s, delimiter_ ) );
         }
     }
 
-    iterator begin()
+    iterator begin ()
     {
-        return data_.begin();
+        return data_.begin ();
     }
 
-    const_iterator begin() const
+    const_iterator begin () const
     {
-        return data_.begin();
+        return data_.begin ();
     }
 
-    iterator end()
+    iterator end ()
     {
-        return data_.end();
+        return data_.end ();
     }
 
-    const_iterator end() const
+    const_iterator end () const
     {
-        return data_.end();
+        return data_.end ();
     }
 
-    std::size_t size() const
+    std::size_t size () const
     {
-        return data_.size();
+        return data_.size ();
     }
 
 
 private:
-
-    auto read_row( std::basic_istream< char_type >& in, char_type delimiter ) -> std::list< std::basic_string< char_type > >
+    auto read_row ( std::basic_istream< char_type >& in, char_type delimiter )
+        -> std::list< std::basic_string< char_type > >
     {
         std::basic_stringstream< char_type > ss;
         bool inquotes = false;
         std::list< std::basic_string< char_type > > row;
-        while( in.good() ) {
-            char_type c = in.get();
-            if( !inquotes && c == '"' ) {
+        while ( in.good () ) {
+            char_type c = in.get ();
+            if ( !inquotes && c == '"' ) {
                 inquotes = true;
             }
-            else
-            if( inquotes && c == '"' ) { // quotes
-                if( in.peek() == '"' ) {
-                    ss << ( char_type )in.get();
+            else if ( inquotes && c == '"' ) { // quotes
+                if ( in.peek () == '"' ) {
+                    ss << (char_type)in.get ();
                 }
                 else {
                     inquotes = false;
                 }
             }
-            else
-            if( !inquotes && c == delimiter ) {
-                row.push_back( ss.str() );
+            else if ( !inquotes && c == delimiter ) {
+                row.push_back ( ss.str () );
                 static const std::basic_string< char_type > a;
-                ss.str( a );
+                ss.str ( a );
             }
-            else
-            if( !inquotes && ( c == '\r' ) ) {
-                if( in.peek() == '\n' ) {
-                      in.get();
+            else if ( !inquotes && ( c == '\r' ) ) {
+                if ( in.peek () == '\n' ) {
+                    in.get ();
                 }
-                row.push_back( ss.str() );
+                row.push_back ( ss.str () );
                 return row;
             }
             else {
@@ -291,10 +276,11 @@ private:
         }
     }
 
-    auto read_row( std::basic_string< char_type > &line, char_type delimiter ) -> std::list< std::basic_string< char_type > >
+    auto read_row ( std::basic_string< char_type >& line, char_type delimiter )
+        -> std::list< std::basic_string< char_type > >
     {
-        std::basic_stringstream< char_type > ss( line );
-        return read_row( ss, delimiter );
+        std::basic_stringstream< char_type > ss ( line );
+        return read_row ( ss, delimiter );
     }
 
 
@@ -305,7 +291,7 @@ private:
     std::basic_istream< char_type >* stream_;
 
 private:
-    CSVReader( const CSVReader& ) = delete;
-    CSVReader& operator= ( const CSVReader& ) = delete;
+    CSVReader ( const CSVReader& ) = delete;
+    CSVReader& operator=( const CSVReader& ) = delete;
 };
 
